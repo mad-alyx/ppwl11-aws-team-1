@@ -25,13 +25,15 @@ const isBrowserRequest = (request: Request): boolean => {
 };
 
 const app = new Elysia()
-.use(cors({ 
-  origin: [
-    (process.env.FRONTEND_URL ?? "").replace(/\/$/, ""), 
-    (process.env.TEST_URL ?? "").replace(/\/$/, "")
-  ], 
-  credentials: true 
-}))
+  .use(
+    cors({
+      origin: [
+        (process.env.FRONTEND_URL ?? "").replace(/\/$/, ""),
+        (process.env.TEST_URL ?? "").replace(/\/$/, ""),
+      ],
+      credentials: true,
+    }),
+  )
   .use(swagger())
   .use(cookie())
   .onRequest(({ request, set }) => {
@@ -57,10 +59,13 @@ const app = new Elysia()
   })
 
   // Health check
-  .get("/", (): ApiResponse<HealthCheck> => ({
-    data: { status: "ok" },
-    message: "server running",
-  }))
+  .get(
+    "/",
+    (): ApiResponse<HealthCheck> => ({
+      data: { status: "ok" },
+      message: "server running",
+    }),
+  )
 
   // Users (dari Phase 2)
   .get("/users", async () => {
@@ -82,54 +87,59 @@ const app = new Elysia()
   })
 
   // Google callback setelah login
-  .get("/auth/callback", async ({ query, set, cookie: { session }, redirect }) => {
-    const { code } = query as { code: string };
+  .get(
+    "/auth/callback",
+    async ({ query, set, cookie: { session }, redirect }) => {
+      const { code } = query as { code: string };
 
-    if (!code) {
-      set.status = 400;
-      return { error: "Missing authorization code" };
-    }
+      if (!code) {
+        set.status = 400;
+        return { error: "Missing authorization code" };
+      }
 
-    const oauth2Client = createOAuthClient();
-    const { tokens } = await oauth2Client.getToken(code);
+      const oauth2Client = createOAuthClient();
+      const { tokens } = await oauth2Client.getToken(code);
 
-    // Simpan token dengan session ID sederhana
-    const sessionId = crypto.randomUUID();
-    await prisma.session.create({
-      data: {
-        id: sessionId,
-        accessToken: tokens.access_token!,
-        refreshToken: tokens.refresh_token ?? undefined,
-      },
-    });
+      // Simpan token dengan session ID sederhana
+      const sessionId = crypto.randomUUID();
+      await prisma.session.create({
+        data: {
+          id: sessionId,
+          accessToken: tokens.access_token!,
+          refreshToken: tokens.refresh_token ?? undefined,
+        },
+      });
 
-    if (!session) return;
+      if (!session) return;
 
-    // Set cookie session
-    session.value = sessionId;
-    session.maxAge = 60 * 60 * 24; // 1 hari
-    session.httpOnly = true;
-    session.secure = true; 
-    session.sameSite = "none";
-    session.path = "/";
+      // Set cookie session
+      session.value = sessionId;
+      session.maxAge = 60 * 60 * 24; // 1 hari
+      session.httpOnly = true;
+      session.secure = true;
+      session.sameSite = "none";
+      session.path = "/";
 
-    // !!! ubah url frontend jadi dynamic ambil dari env (lakukan ke semua file di apps/backend), contoh:
-    const frontendUrl = (process.env.FRONTEND_URL ?? "").replace(/\/$/, "");
-    return redirect(`${frontendUrl}/classroom`);
-  })
+      // !!! ubah url frontend jadi dynamic ambil dari env (lakukan ke semua file di apps/backend), contoh:
+      const frontendUrl = (process.env.FRONTEND_URL ?? "").replace(/\/$/, "");
+      return redirect(`${frontendUrl}/classroom`);
+    },
+  )
 
   // Cek status login
   .get("/auth/me", async ({ cookie: { session } }) => {
     const sessionId = session?.value as string;
-   if (!sessionId) return { loggedIn: false };
+    if (!sessionId) return { loggedIn: false };
 
-    const dbSession = await prisma.session.findUnique({ where: { id: sessionId } });
+    const dbSession = await prisma.session.findUnique({
+      where: { id: sessionId },
+    });
     return { loggedIn: !!dbSession };
   })
 
   // Logout
   .post("/auth/logout", async ({ cookie: { session } }) => {
-    if(!session) return { success: false };
+    if (!session) return { success: false };
 
     const sessionId = session?.value as string;
     if (sessionId) {
@@ -148,7 +158,9 @@ const app = new Elysia()
   // Ambil daftar courses mahasiswa
   .get("/classroom/courses", async ({ cookie: { session }, set }) => {
     const sessionId = session?.value as string;
-    const dbSession = sessionId ? await prisma.session.findUnique({ where: { id: sessionId } }) : null;
+    const dbSession = sessionId
+      ? await prisma.session.findUnique({ where: { id: sessionId } })
+      : null;
 
     if (!dbSession) {
       set.status = 401;
@@ -160,41 +172,51 @@ const app = new Elysia()
   })
 
   // Ambil coursework + submisi untuk satu course
-  .get("/classroom/courses/:courseId/submissions", async ({ params, cookie: { session }, set }) => {
-    const sessionId = session?.value as string;
-    const dbSession = sessionId ? await prisma.session.findUnique({ where: { id: sessionId } }) : null;
+  .get(
+    "/classroom/courses/:courseId/submissions",
+    async ({ params, cookie: { session }, set }) => {
+      const sessionId = session?.value as string;
+      const dbSession = sessionId
+        ? await prisma.session.findUnique({ where: { id: sessionId } })
+        : null;
 
-    if (!dbSession) {
-      set.status = 401;
-      return { error: "Unauthorized. Silakan login terlebih dahulu." };
-    }
+      if (!dbSession) {
+        set.status = 401;
+        return { error: "Unauthorized. Silakan login terlebih dahulu." };
+      }
 
-    const { courseId } = params;
+      const { courseId } = params;
 
-    const [courseWorks, submissions] = await Promise.all([
-      getCourseWorks(dbSession.accessToken, courseId),
-      getSubmissions(dbSession.accessToken, courseId),
-    ]);
+      const [courseWorks, submissions] = await Promise.all([
+        getCourseWorks(dbSession.accessToken, courseId),
+        getSubmissions(dbSession.accessToken, courseId),
+      ]);
 
-    // Gabungkan coursework dengan submisi
-    const submissionMap = new Map(submissions.map((s) => [s.courseWorkId, s]));
+      // Gabungkan coursework dengan submisi
+      const submissionMap = new Map(
+        submissions.map((s) => [s.courseWorkId, s]),
+      );
 
-    const result = courseWorks.map((cw) => ({
-      courseWork: cw,
-      submission: submissionMap.get(cw.id) ?? null,
-    }));
+      const result = courseWorks.map((cw) => ({
+        courseWork: cw,
+        submission: submissionMap.get(cw.id) ?? null,
+      }));
 
-    return { data: result, message: "Course submissions retrieved" };
-  })
+      return { data: result, message: "Course submissions retrieved" };
+    },
+  )
 
   .get("/debug-prisma", () => {
-    const generatedPath = path.resolve(__dirname, "../src/generated/prisma/client");
+    const generatedPath = path.resolve(
+      __dirname,
+      "../src/generated/prisma/client",
+    );
     const exists = fs.existsSync(generatedPath);
 
     return {
       path: generatedPath,
       exists: exists,
-      files: exists ? fs.readdirSync(generatedPath) : []
+      files: exists ? fs.readdirSync(generatedPath) : [],
     };
   });
 
