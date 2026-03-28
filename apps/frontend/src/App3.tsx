@@ -207,6 +207,7 @@ export default function App() {
 
   // Load daftar courses setelah login
   useEffect(() => {
+    console.log("loggedIn: ", loggedIn)
     if (!loggedIn) return
     fetch(`${import.meta.env.VITE_BACKEND_URL}/classroom/courses`, { credentials: "include" })
       .then((r) => r.json())
