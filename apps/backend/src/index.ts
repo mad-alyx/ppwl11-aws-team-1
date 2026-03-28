@@ -89,16 +89,16 @@ const app = new Elysia()
 
       if (!session) return;
 
-      // Set cookie session
-      session.value = sessionId;
-      session.maxAge = 60 * 60 * 24; // 1 hari
-      session.path = "/";
+    // Set cookie session
+    session.value = sessionId;
+    session.maxAge = 60 * 60 * 24; // 1 hari
+    session.path = "/";
 
-      // !!! Tambahkan KONFIGURASI PRODUCTION
-      session.httpOnly = true;
-      session.secure = true;    // WAJIB: Cookie hanya dikirim lewat HTTPS
-      session.sameSite = "none"; // WAJIB: Agar cookie bisa dikirim antar domain berbeda
-
+    // !!! Tambahkan KONFIGURASI PRODUCTION
+    session.httpOnly = true;
+    session.secure = true;    // WAJIB: Cookie hanya dikirim lewat HTTPS
+    session.sameSite = "none"; // WAJIB: Agar cookie bisa dikirim antar domain berbeda
+    
       // Redirect ke frontend
       // !!! ubah url frontend jadi env var (lakukan ke semua file di apps/backend), contoh:
       return redirect(`${process.env.FRONTEND_URL}/classroom`);
