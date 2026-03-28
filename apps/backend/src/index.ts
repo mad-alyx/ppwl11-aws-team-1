@@ -108,6 +108,9 @@ const app = new Elysia()
   // Cek status login
   .get("/auth/me", ({ cookie: { session } }) => {
     const sessionId = session?.value as string;
+    console.log("Current Session ID from Cookie:", sessionId);
+    console.log("Is Session ID in Map?", tokenStore.has(sessionId));
+    console.log("Total Sessions in Map:", tokenStore.size);
     if (!sessionId || !tokenStore.has(sessionId)) {
       return { loggedIn: false };
     }
