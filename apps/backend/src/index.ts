@@ -106,20 +106,22 @@ const app = new Elysia()
   )
 
   // Cek status login
-  .get("/auth/me", ({ cookie: { session } }) => {
-    const sessionId = session?.value; // Ambil nilai asli tanpa casting dulu
+.get("/auth/me", ({ cookie: { session } }) => {
+  const sessionId = session?.value;
   
-    console.log("--- DEBUG SESSION ---");
-    console.log("Raw Session Object:", session);
-    console.log("Session ID dari Browser:", sessionId);
-    console.log("Isi Map saat ini:", Array.from(tokenStore.keys())); 
+  console.log("--- INVESTIGASI KUNCI ---");
+  console.log(`Browser membawa: [${sessionId}] (Tipe: ${typeof sessionId})`);
   
-  if (!sessionId || !tokenStore.has(sessionId)) {
-    console.log("Hasil: TIDAK LOGIN (Mismatch atau Kosong)");
+  const allKeys = Array.from(tokenStore.keys());
+  console.log("Daftar kunci di Map:", allKeys.map(k => `[${k}]`).join(", "));
+
+  // Cek apakah ada yang mirip tapi beda tipe/format
+  const found = tokenStore.has(sessionId as string);
+  console.log("Apakah ditemukan secara langsung?", found);
+
+  if (!sessionId || !found) {
     return { loggedIn: false };
   }
-  
-  console.log("Hasil: BERHASIL LOGIN");
   return { loggedIn: true, sessionId };
 })
 
