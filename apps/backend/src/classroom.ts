@@ -10,7 +10,9 @@ export interface CourseWork {
 }
 
 export interface Material {
-  driveFile?: { driveFile: { id: string; title: string; alternateLink: string } };
+  driveFile?: {
+    driveFile: { id: string; title: string; alternateLink: string };
+  };
   youtubeVideo?: { id: string; title: string; alternateLink: string };
   link?: { url: string; title: string };
   form?: { formUrl: string; title: string };
@@ -46,7 +48,10 @@ export async function getCourses(accessToken: string) {
   return res.data.courses ?? [];
 }
 
-export async function getCourseWorks(accessToken: string, courseId: string): Promise<CourseWork[]> {
+export async function getCourseWorks(
+  accessToken: string,
+  courseId: string,
+): Promise<CourseWork[]> {
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: accessToken });
 
@@ -59,7 +64,10 @@ export async function getCourseWorks(accessToken: string, courseId: string): Pro
   return (res.data.courseWork ?? []) as CourseWork[];
 }
 
-export async function getSubmissions(accessToken: string, courseId: string): Promise<Submission[]> {
+export async function getSubmissions(
+  accessToken: string,
+  courseId: string,
+): Promise<Submission[]> {
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: accessToken });
 
