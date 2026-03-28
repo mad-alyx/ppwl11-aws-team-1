@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
     server: {
       port: Number(env.VITE_PORT) || 5173,
       strictPort: true,
+      // proxy agar tiap fetch("/api"), yang dipanggil backend url
       proxy: {
         "/api": {
           target: env.VITE_BACKEND_URL || "http://localhost:3000",
