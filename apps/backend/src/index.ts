@@ -11,7 +11,6 @@ import type { ApiResponse, HealthCheck, User } from "shared";
 const tokenStore = new Map<string, { access_token: string; refresh_token?: string }>();
 
 const app = new Elysia()
-  // !!! modifikasi CORS agar dapat di akses oleh web frontend deployment https
   .use(
     cors({
       origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -42,9 +41,8 @@ const app = new Elysia()
       }
     }
   })
-
   // Health check
-.get("/", (): ApiResponse<HealthCheck> => ({
+  .get("/", (): ApiResponse<HealthCheck> => ({
     data: { status: "ok" },
     message: "server running",
   }))
@@ -70,7 +68,7 @@ const app = new Elysia()
 
   // Google callback setelah login
   .get("/auth/callback", async ({ query, set, cookie: { session }, redirect }) => {
-      const { code } = query as { code: string };
+    const { code } = query as { code: string };
 
     if (!code) {
       set.status = 400;
@@ -86,7 +84,6 @@ const app = new Elysia()
       access_token: tokens.access_token!,
       refresh_token: tokens.refresh_token ?? undefined,
     });
-
     if (!session) return;
 
     // Set cookie session
@@ -94,16 +91,14 @@ const app = new Elysia()
     session.maxAge = 60 * 60 * 24; // 1 hari
     session.path = "/";
 
-    // !!! Tambahkan KONFIGURASI PRODUCTION
+    // KONFIGURASI PRODUCTION
     session.httpOnly = true;
     session.secure = true;    // WAJIB: Cookie hanya dikirim lewat HTTPS
     session.sameSite = "none"; // WAJIB: Agar cookie bisa dikirim antar domain berbeda
-    
-      // Redirect ke frontend
-      // !!! ubah url frontend jadi env var (lakukan ke semua file di apps/backend), contoh:
-      return redirect(`${process.env.FRONTEND_URL}/classroom`);
-    },
-  )
+
+    // Redirect ke frontend
+    return redirect(`${process.env.FRONTEND_URL}/classroom`);
+  })
 
   // Cek status login
   .get("/auth/me", ({ cookie: { session } }) => {
@@ -116,7 +111,7 @@ const app = new Elysia()
 
   // Logout
   .post("/auth/logout", ({ cookie: { session } }) => {
-    if(!session) return { success: false };
+    if (!session) return { success: false };
 
     const sessionId = session?.value as string;
     if (sessionId) {
@@ -159,7 +154,7 @@ const app = new Elysia()
       getSubmissions(tokens.access_token, courseId),
     ]);
 
-       // Gabungkan coursework dengan submisi
+    // Gabungkan coursework dengan submisi
     const submissionMap = new Map(submissions.map((s) => [s.courseWorkId, s]));
 
     const result = courseWorks.map((cw) => ({
@@ -168,9 +163,9 @@ const app = new Elysia()
     }));
 
     return { data: result, message: "Course submissions retrieved" };
-  })
+  });
 
-// !!! tambahkan console log yang tidak tampil di production & pakai nilai dari ENV
+// ! buat console log yang tidak tampil di production & pakai nilai dari ENV
 if (process.env.NODE_ENV != "production") {
   app.listen(3000);
   console.log(`🦊 Backend → http://localhost:3000`);
@@ -178,5 +173,6 @@ if (process.env.NODE_ENV != "production") {
   console.log(`🦊 DATABASE_URL: ${process.env.DATABASE_URL}`); // pembeda development & production
   console.log(`🦊 GOOGLE_REDIRECT_URI: ${process.env.GOOGLE_REDIRECT_URI}`); // dari file .env
 }
-// !!! tambahkan export app agar Elysia dapat dibaca Vercel serverless.
+
+// tambahkan export app agar Elysia dapat dibaca Vercel serverless.
 export default app;
