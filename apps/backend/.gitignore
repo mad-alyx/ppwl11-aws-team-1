@@ -6,21 +6,28 @@ out
 dist
 *.tgz
 
+# build artifacts (lambda)
+dist-lambda/
+lambda-backend.zip
+cert/
+
 # code coverage
 coverage
 *.lcov
 
 # logs
 logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+*.log
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # dotenv environment variable files
 .env
+.env.local
 .env.development.local
 .env.test.local
 .env.production.local
-.env.local
+.env.development
+.env.production
 
 # caches
 .eslintcache
@@ -33,12 +40,5 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 # Finder (MacOS) folder config
 .DS_Store
 
+# Prisma generated
 /src/generated/prisma
-<<<<<<< HEAD
-
-.env.production
-.env.development
-=======
-.env.development
-.env.production
->>>>>>> 230e25e (feat: implement Vercel deployment support, secure cookie configuration, and API key authentication for backend and frontend services.)

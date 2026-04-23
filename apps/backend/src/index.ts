@@ -42,16 +42,19 @@ export const createApp = (getPrisma: () => DbClient) => {
     // Middleware akses kontrol untuk /users
     .onRequest(({ request, set }) => {
       const url = new URL(request.url);
+      console.log(`[DEBUG] [${request.method}] ${url.pathname}`);
+
+      // Lewati preflight OPTIONS
+      if (request.method === "OPTIONS") return;
+
       if (!url.pathname.startsWith("/users")) return;
 
       const origin = request.headers.get("origin");
       const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
       const key = url.searchParams.get("key");
 
-      // Izinkan dari frontend resmi
       if (origin === frontendUrl) return;
 
-      // Selain itu wajib pakai API_KEY
       if (key !== process.env.API_KEY) {
         set.status = 401;
         return { message: "Unauthorized: Access denied without valid API Key" };
