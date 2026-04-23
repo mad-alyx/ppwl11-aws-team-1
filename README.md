@@ -1,4 +1,4 @@
-# PPWL 11/Monorepo - Aws Teams (template)
+# PPWL 11/Monorepo - Aws Teams
 [![PPWL 2026 Asdos - 11](https://img.shields.io/badge/PPWL_2026_Asdos-11-blue?style=for-the-badge&logo=github)](https://github.com/mad-alyx/ppwl11-aws-team-1)
 [![Date](https://img.shields.io/badge/Date-16%20April%202026-blue?style=flat-square&logo=calendar-check)](https://github.com/mad-alyx/ppwl11-aws-team-1)
 
