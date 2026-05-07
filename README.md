@@ -25,7 +25,4 @@
 [Canva - Arsitektur Diagram AWS](https://canva.link/ynrftbnjjlwwra0)
 
 
-[Link Frontend](https://dip8libvo7ek.cloudfront.net/)
-
-
-
+[Link Frontend](https://ppwl-a1.store)
